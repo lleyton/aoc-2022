@@ -1,5 +1,6 @@
 fn parse_input(input: &str) -> Vec<Vec<u32>> {
-    input.lines()
+    input
+        .lines()
         .map(|line| line.parse::<u32>().ok())
         .collect::<Vec<Option<u32>>>()
         .split(|num| num.is_none())
@@ -8,7 +9,10 @@ fn parse_input(input: &str) -> Vec<Vec<u32>> {
 }
 
 fn get_total_counts(input: Vec<Vec<u32>>) -> Vec<u32> {
-    input.iter().map(|part| part.iter().sum::<u32>()).collect::<Vec<u32>>()
+    input
+        .iter()
+        .map(|part| part.iter().sum::<u32>())
+        .collect::<Vec<u32>>()
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
