@@ -76,12 +76,12 @@ pub fn evalulate_game(game: &(Choice, Choice)) -> u32 {
 
 pub fn get_game_by_strategy(strategy: &(Choice, GameResult)) -> (Choice, Choice) {
     match strategy {
-        (Choice::Paper, GameResult::Win) => (Choice::Paper, Choice::Scissors),
-        (Choice::Rock, GameResult::Win) => (Choice::Rock, Choice::Paper),
-        (Choice::Scissors, GameResult::Win) => (Choice::Scissors, Choice::Rock),
-        (Choice::Paper, GameResult::Lose) => (Choice::Paper, Choice::Rock),
-        (Choice::Rock, GameResult::Lose) => (Choice::Rock, Choice::Scissors),
-        (Choice::Scissors, GameResult::Lose) => (Choice::Scissors, Choice::Paper),
+        (Choice::Paper, GameResult::Win) => (strategy.0, Choice::Scissors),
+        (Choice::Rock, GameResult::Win) => (strategy.0, Choice::Paper),
+        (Choice::Scissors, GameResult::Win) => (strategy.0, Choice::Rock),
+        (Choice::Paper, GameResult::Lose) => (strategy.0, Choice::Rock),
+        (Choice::Rock, GameResult::Lose) => (strategy.0, Choice::Scissors),
+        (Choice::Scissors, GameResult::Lose) => (strategy.0, Choice::Paper),
         (_, GameResult::Draw) => (strategy.0, strategy.0),
     }
 }
