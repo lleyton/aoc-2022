@@ -27,13 +27,6 @@ fn find_overlapping_pairs(input: &Vec<(Vec<u32>, Vec<u32>)>) -> Vec<&(Vec<u32>, 
         .collect()
 }
 
-pub fn part_one(input: &str) -> Option<u32> {
-    let parsed = parse_input(input);
-    let overlapping = find_overlapping_pairs(&parsed);
-
-    Some(overlapping.len() as u32)
-}
-
 fn find_overlapping_any(input: &Vec<(Vec<u32>, Vec<u32>)>) -> Vec<&(Vec<u32>, Vec<u32>)> {
     input
         .iter()
@@ -41,6 +34,13 @@ fn find_overlapping_any(input: &Vec<(Vec<u32>, Vec<u32>)>) -> Vec<&(Vec<u32>, Ve
             pair.0.iter().any(|x| pair.1.contains(x)) || pair.1.iter().any(|x| pair.0.contains(x))
         })
         .collect()
+}
+
+pub fn part_one(input: &str) -> Option<u32> {
+    let parsed = parse_input(input);
+    let overlapping = find_overlapping_pairs(&parsed);
+
+    Some(overlapping.len() as u32)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
