@@ -1,6 +1,4 @@
-use std::{
-    collections::HashSet
-};
+use std::collections::HashSet;
 
 // NOTE: this is terrible code, I got frustrated near the end (thanks rustc!) and just decided that I didn't give a shit about code quality
 // You've been warned
