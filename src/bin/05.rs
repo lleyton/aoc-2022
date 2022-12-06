@@ -78,7 +78,9 @@ pub fn part_two(input: &str) -> Option<String> {
     let (mut state, instructions) = parse_input(input);
 
     instructions.iter().for_each(|(amount, from, to)| {
-        let mut pulled = (0..*amount).map(|_| state[(from - 1) as usize].pop_front().unwrap()).collect::<Vec<char>>();
+        let mut pulled = (0..*amount)
+            .map(|_| state[(from - 1) as usize].pop_front().unwrap())
+            .collect::<Vec<char>>();
         pulled.reverse();
 
         for i in 0..*amount {
