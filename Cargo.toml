@@ -8,5 +8,6 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+enum-as-inner = "0.5.1"
 itertools = "0.10.5"
 pico-args = "0.5.0"
