@@ -1,4 +1,4 @@
-use std::{ops::Index, cell::RefCell};
+use std::{cell::RefCell, ops::Index};
 
 use enum_as_inner::EnumAsInner;
 use itertools::Itertools;
@@ -15,9 +15,12 @@ pub enum Command {
     Change(String),
 }
 
-pub fn parse_input(input: &str)  -> Vec<Command> {
+pub fn parse_input(input: &str) -> Vec<Command> {
     let lines = input.lines().collect::<Vec<&str>>();
-    let grouped = lines.iter().enumerate().collect::<Vec<(usize, &&str)>>()
+    let grouped = lines
+        .iter()
+        .enumerate()
+        .collect::<Vec<(usize, &&str)>>()
         .split_inclusive(|(index, _)| {
             if *index == lines.len() - 1 {
                 return true;
@@ -28,37 +31,41 @@ pub fn parse_input(input: &str)  -> Vec<Command> {
             next_is_command
         })
         .map(|group| {
-            group.iter().map(|(_, &line)| line.to_string()).collect::<Vec<String>>()
+            group
+                .iter()
+                .map(|(_, &line)| line.to_string())
+                .collect::<Vec<String>>()
         })
         .collect::<Vec<Vec<String>>>();
 
-    grouped.iter().map(|command| {
-        match command[0].as_str() {
+    grouped
+        .iter()
+        .map(|command| match command[0].as_str() {
             "$ ls" => {
-                let entries = command[1..].iter().map(|entry| {
-                    if entry.starts_with("dir") {
-                        return Entry::Directory(
-                            Vec::new(),
-                            entry.strip_prefix("dir ").unwrap().to_string(),
-                        );
-                    }
+                let entries = command[1..]
+                    .iter()
+                    .map(|entry| {
+                        if entry.starts_with("dir") {
+                            return Entry::Directory(
+                                Vec::new(),
+                                entry.strip_prefix("dir ").unwrap().to_string(),
+                            );
+                        }
 
-                    let file_entry = entry.split(" ").collect::<Vec<&str>>();
+                        let file_entry = entry.split(" ").collect::<Vec<&str>>();
 
-                    Entry::File(
-                        file_entry[0].parse().unwrap(),
-                        file_entry[1].to_string()
-                    )
-                }).collect::<Vec<Entry>>();
+                        Entry::File(file_entry[0].parse().unwrap(), file_entry[1].to_string())
+                    })
+                    .collect::<Vec<Entry>>();
 
                 Command::List(entries)
-            },
+            }
             _ if command[0].starts_with("$ cd") => {
                 Command::Change(command[0].strip_prefix("$ cd ").unwrap().to_string())
             }
             _ => todo!(),
-        }
-    }).collect::<Vec<Command>>()
+        })
+        .collect::<Vec<Command>>()
 }
 
 fn get_nested_entry<'a>(entry: &'a mut Entry, stack: &'a [String]) -> &'a mut Entry {
@@ -95,15 +102,17 @@ fn build_filesystem(commands: &Vec<Command>) -> Entry {
                 } else {
                     stack.push(dir.clone());
                 }
-            },
+            }
             Command::List(entries) => {
-                let (current_entries, _) = get_nested_entry(&mut fs, stack.as_slice()).as_directory_mut().unwrap();
+                let (current_entries, _) = get_nested_entry(&mut fs, stack.as_slice())
+                    .as_directory_mut()
+                    .unwrap();
 
                 for entry in entries {
                     match entry {
                         Entry::File(size, name) => {
                             current_entries.push(Entry::File(*size, name.clone()));
-                        },
+                        }
                         Entry::Directory(_, name) => {
                             current_entries.push(Entry::Directory(vec![], name.clone()));
                         }
@@ -124,7 +133,7 @@ fn total_under(node: &Entry, under: u32, results: &mut Vec<u32>) -> u32 {
         match entry {
             Entry::File(size, _) => {
                 local_size += size;
-            },
+            }
             Entry::Directory(_, _) => {
                 local_size += total_under(entry, under, results);
             }
@@ -146,7 +155,7 @@ fn total(node: &Entry, results: &mut Vec<u32>) -> u32 {
         match entry {
             Entry::File(size, _) => {
                 local_size += size;
-            },
+            }
             Entry::Directory(_, _) => {
                 local_size += total(entry, results);
             }
@@ -158,7 +167,6 @@ fn total(node: &Entry, results: &mut Vec<u32>) -> u32 {
     local_size
 }
 
-
 pub fn part_one(input: &str) -> Option<u32> {
     let commands = parse_input(input);
     let filesystem = build_filesystem(&commands);
@@ -166,14 +174,12 @@ pub fn part_one(input: &str) -> Option<u32> {
     let mut results = vec![];
     total_under(&filesystem, 100000, &mut results);
 
-
     Some(results.iter().sum::<u32>())
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
     let commands = parse_input(input);
     let filesystem = build_filesystem(&commands);
-
 
     let mut results = vec![];
     let root_size = total(&filesystem, &mut results);
