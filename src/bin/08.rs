@@ -116,7 +116,6 @@ pub fn score(map: &Vec<Vec<u32>>, pos: &(usize, usize)) -> u32 {
         return 1;
     }
 
-
     for h in (0..height).rev() {
         if map[h][width] >= map[height][width] {
             scores.push(height - h);
@@ -165,9 +164,12 @@ pub fn score(map: &Vec<Vec<u32>>, pos: &(usize, usize)) -> u32 {
         return 1;
     }
 
-    scores.iter().map(|x| *x as u32).reduce(|a, b| a * b).unwrap()
+    scores
+        .iter()
+        .map(|x| *x as u32)
+        .reduce(|a, b| a * b)
+        .unwrap()
 }
-
 
 pub fn part_two(input: &str) -> Option<u32> {
     let map = parse_input(input);
