@@ -1,4 +1,3 @@
-use rug::{Assign, Integer};
 use std::cell::RefCell;
 
 use itertools::Itertools;
@@ -25,7 +24,7 @@ impl From<&str> for Operation {
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub enum Operand {
-    Literal(Integer),
+    Literal(u128),
     Old,
 }
 
@@ -40,7 +39,7 @@ impl From<&str> for Operand {
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub enum Test {
-    Divisible(Integer),
+    Divisible(u128),
 }
 
 impl From<&str> for Test {
@@ -74,13 +73,13 @@ impl From<&str> for Action {
 pub struct Monkey {
     // We don't really need this num, but it's passed in the input... so why not
     number: usize,
-    starting_items: Vec<Integer>,
+    starting_items: Vec<u128>,
     operation: (Operation, Operand, Operand),
     test: Test,
     if_true: Action,
     if_false: Action,
     // How many times has this monkey inspected an item
-    inspect_count: Integer,
+    inspect_count: u128,
 }
 
 pub fn parse_input(input: &str) -> Vec<Monkey> {
@@ -101,7 +100,7 @@ pub fn parse_input(input: &str) -> Vec<Monkey> {
                 .strip_prefix("Starting items: ")
                 .unwrap()
                 .split(", ")
-                .map(|num| num.parse::<Integer>().unwrap())
+                .map(|num| num.parse::<u128>().unwrap())
                 .collect_vec();
 
             let operation = {
@@ -149,7 +148,7 @@ pub fn parse_input(input: &str) -> Vec<Monkey> {
         .collect_vec()
 }
 
-pub fn perform_operation(operation: (Operation, Operand, Operand), old: Integer) -> Integer {
+pub fn perform_operation(operation: (Operation, Operand, Operand), old: u128) -> u128 {
     let operand_1 = match operation.1 {
         Operand::Literal(num) => num,
         Operand::Old => old,
@@ -160,6 +159,8 @@ pub fn perform_operation(operation: (Operation, Operand, Operand), old: Integer)
         Operand::Old => old,
     };
 
+    operand_1.checked_mul(operand_2).unwrap_or(old);
+
     match operation.0 {
         Operation::Add => operand_1 + operand_2,
         Operation::Sub => operand_1 - operand_2,
@@ -168,7 +169,7 @@ pub fn perform_operation(operation: (Operation, Operand, Operand), old: Integer)
     }
 }
 
-pub fn perform_test(test: Test, worry: Integer) -> bool {
+pub fn perform_test(test: Test, worry: u128) -> bool {
     match test {
         Test::Divisible(divisor) => worry % divisor == 0,
     }
@@ -186,7 +187,7 @@ pub fn run_round(monkeys: &Vec<Monkey>) -> Vec<Monkey> {
         monkey.starting_items.clone().iter().for_each(|item| {
             monkey.inspect_count += 1;
             // We divide by 3... because the monkey gets bored quick.
-            let new_worry = perform_operation(monkey.operation, *item);
+            let new_worry = perform_operation(monkey.operation, *item) / 3;
             let test_result = perform_test(monkey.test, new_worry);
 
             let action = if test_result {
@@ -221,6 +222,14 @@ pub fn run_round(monkeys: &Vec<Monkey>) -> Vec<Monkey> {
 }
 
 pub fn run_round_2(monkeys: &Vec<Monkey>) -> Vec<Monkey> {
+    let wrap = monkeys
+        .iter()
+        .map(|m| match m.test {
+            Test::Divisible(divisor) => divisor,
+        })
+        .reduce(|a, b| a * b)
+        .unwrap();
+
     // STFU Rust's borrow checker
     let new_monkeys = monkeys
         .iter()
@@ -231,8 +240,8 @@ pub fn run_round_2(monkeys: &Vec<Monkey>) -> Vec<Monkey> {
         let mut monkey = monkey.borrow_mut();
         monkey.starting_items.clone().iter().for_each(|item| {
             monkey.inspect_count += 1;
-            // We divide by 3... because the monkey gets bored quick.
-            let new_worry = perform_operation(monkey.operation, *item);
+            // Wrap the result around
+            let new_worry = perform_operation(monkey.operation, *item) % wrap;
             let test_result = perform_test(monkey.test, new_worry);
 
             let action = if test_result {
@@ -266,10 +275,7 @@ pub fn run_round_2(monkeys: &Vec<Monkey>) -> Vec<Monkey> {
         .collect_vec()
 }
 
-
-
-
-pub fn part_one(input: &str) -> Option<Integer> {
+pub fn part_one(input: &str) -> Option<u128> {
     let monkeys = parse_input(input);
     let mut final_state = (0..20).fold(monkeys, |state, _| run_round(&state));
     final_state.sort_by(|a, b| a.inspect_count.cmp(&b.inspect_count));
@@ -280,8 +286,9 @@ pub fn part_one(input: &str) -> Option<Integer> {
     )
 }
 
-pub fn part_two(input: &str) -> Option<Integer> {
+pub fn part_two(input: &str) -> Option<u128> {
     let monkeys = parse_input(input);
+    println!("{:#?}", run_round_2(&monkeys));
     let mut final_state = (0..10000).fold(monkeys, |state, _| run_round_2(&state));
     final_state.sort_by(|a, b| a.inspect_count.cmp(&b.inspect_count));
 
