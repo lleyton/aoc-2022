@@ -288,7 +288,6 @@ pub fn part_one(input: &str) -> Option<u128> {
 
 pub fn part_two(input: &str) -> Option<u128> {
     let monkeys = parse_input(input);
-    println!("{:#?}", run_round_2(&monkeys));
     let mut final_state = (0..10000).fold(monkeys, |state, _| run_round_2(&state));
     final_state.sort_by(|a, b| a.inspect_count.cmp(&b.inspect_count));
 
