@@ -10,5 +10,5 @@ publish = false
 [dependencies]
 enum-as-inner = "0.5.1"
 itertools = "0.10.5"
+pathfinding = "4.0.0"
 pico-args = "0.5.0"
-rug = "1.18.0"
